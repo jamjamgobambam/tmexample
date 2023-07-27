@@ -2,6 +2,8 @@ package com.codedotorg;
 
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -41,6 +43,22 @@ public class ModelDemo {
 
     private void setButtonActions() {
         exitButton.setOnAction(e -> System.exit(0));
+    }
+
+    private ImageView getCameraFeed() {
+        // Create a new ImageView object to display the camera feed
+        ImageView cameraView = new ImageView();
+
+        // Set the dimensions of the ImageView to match the dimensions of the scene
+        cameraView.fitWidthProperty().bind(window.widthProperty());
+        cameraView.fitHeightProperty().bind(window.heightProperty());
+
+        // Set the image of the ImageView to the camera feed
+        // Replace this with your own code to capture the camera feed
+        Image cameraImage = new Image("https://dummyimage.com/500x500/000/fff");
+        cameraView.setImage(cameraImage);
+
+        return cameraView;
     }
 
 }
