@@ -12,13 +12,28 @@ import javafx.util.Duration;
 
 public class ModelDemo {
 
+    /** The main window of the app */
     private Stage window;
+
+    /** Displays the camera feed in the app */
     private ImageView cameraView;
+
+    /** Displays the predicted class and confidence score */
     private Label predictionLabel;
+
+    /** Button to exit the app */
     private Button exitButton;
+
+    /** Manages the TensorFlow model used for image classification */
     private ModelManager model;
+
+    /** Controls the camera capture and provides frames to the TensorFlow model for classification */
     private CameraController cameraController;
 
+    /**
+     * Constructor for the ModelDemo class.
+     * Initializes the camera controller, model manager, image view, prediction label, and exit button.
+     */
     public ModelDemo() {
         cameraController = new CameraController();
         model = new ModelManager();
@@ -27,6 +42,14 @@ public class ModelDemo {
         exitButton = new Button("Exit");
     }
     
+    /**
+     * Starts the Teachable Machine Example application.
+     * Sets the title of the primary stage to "Teachable Machine Example".
+     * Adds a shutdown hook to stop the camera capture when the app is closed.
+     * Calls the showMainScreen() method to display the main screen.
+     *
+     * @param primaryStage the primary stage of the application
+     */
     public void startApp(Stage primaryStage) {
         this.window = primaryStage;
         window.setTitle("Teachable Machine Example");
@@ -39,6 +62,11 @@ public class ModelDemo {
         showMainScreen();
     }
 
+    /**
+     * Displays the main screen of the application, which includes the camera view,
+     * prediction label, and exit button. Starts capturing the webcam and updates
+     * the prediction label.
+     */
     public void showMainScreen() {
         setButtonActions();
 
@@ -65,6 +93,9 @@ public class ModelDemo {
         updatePredictionLabel();
     }
 
+    /**
+     * Sets the action for the exit button. When clicked, it stops the camera capture and exits the program.
+     */
     private void setButtonActions() {
         exitButton.setOnAction(e -> {
             cameraController.stopCapture();
@@ -72,6 +103,12 @@ public class ModelDemo {
         });
     }
 
+    /**
+     * Returns a Label object that displays the predicted class and score obtained from the camera controller.
+     * The Label object is positioned at (50, 50) on the screen.
+     *
+     * @return a Label object that displays the predicted class and score
+     */
     private Label getPredictionLabel() {
         Label label = new Label(cameraController.getPredictedClass() + " - " + cameraController.getPredictedScore());
 
@@ -81,12 +118,23 @@ public class ModelDemo {
         return label;
     }
 
+    /**
+     * Updates the prediction label with the predicted class and score from the camera controller.
+     * Uses a timeline to update the label every second.
+     */
     private void updatePredictionLabel() {
+        // Timeline is part of the JavaFX library to provide a way to create animations and other time-based events.
+        // KeyFrame is used to define a single frame of an animation.
+        // Duration.seconds(1) specifies that this should be executed every 1 second.
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
+            // Sets the text of the predictionLabel to the predicted class label and score from the CameraController every second
             predictionLabel.setText(cameraController.getPredictedClass() + " - " + cameraController.getPredictedScore());
         }));
         
+        // Specify that the animation should repeat indefinitely
         timeline.setCycleCount(Timeline.INDEFINITE);
+
+        // Start the animation
         timeline.play();
     }
 

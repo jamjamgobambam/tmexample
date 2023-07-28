@@ -13,18 +13,38 @@ import org.opencv.imgcodecs.Imgcodecs;
 
 public class CameraController {
 
+    /** The predicted class from the model */
     private String predictedClass;
+
+    /** The confidence score of the model */
     private float predictedScore;
+
+    /** Whether or not the camera capture is running */
     private static volatile boolean running = true;
 
+    /**
+     * Constructor for CameraController class.
+     * Loads OpenCV locally and initializes predictedClass and predictedScore to null and 0 respectively.
+     */
     public CameraController() {
+        // Load the OpenCV library locally
         nu.pattern.OpenCV.loadLocally();
 
         predictedClass = null;
         predictedScore = 0;
     }
 
+    /**
+     * Captures camera frames and displays them in an ImageView while running.
+     * 
+     * @param imageView the ImageView to display the captured frames
+     * @param model the ModelManager to use for predicting the class and score of the captured frames
+     */
     public void captureCamera(ImageView imageView, ModelManager model) {
+        // Create a new thread to run the camera capture
+        // Ensures that the camera capture runs in a separate thread from the main thread
+        // of the app to prevent the camera capture from blocking the main thread and
+        // causing the app to become unresponsive
         new Thread(() -> {
             // Create a VideoCapture with the system default camera (0)
             VideoCapture camera = new VideoCapture(0);
@@ -63,20 +83,39 @@ public class CameraController {
         }).start();
     }
 
+    /**
+     * Returns the predicted class from the model
+     *
+     * @return the predicted class from the model
+     */
     public String getPredictedClass() {
         return predictedClass;
     }
 
+    /**
+     * Returns the predicted confidence score from the model
+     *
+     * @return the predicted confidence score from the model
+     */
     public float getPredictedScore() {
         return predictedScore;
     }
 
+    /**
+     * Stops the camera capture.
+     */
     public void stopCapture() {
         running = false;
     }
 
+    /**
+     * Converts a given OpenCV Mat object to a JavaFX Image object.
+     * 
+     * @param frame The OpenCV Mat object to be converted.
+     * @return The JavaFX Image object created from the image encoded in the buffer.
+     */
     private Image matToImage(Mat frame) {
-        // Create a temporary buffer
+        // Create a temporary buffer to store the encoded image data
         MatOfByte buffer = new MatOfByte();
 
         // Encode the frame in the buffer, according to the PNG format
