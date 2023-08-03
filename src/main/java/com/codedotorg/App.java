@@ -10,7 +10,8 @@ public class App extends Application {
     }
 
     public void start(Stage primaryStage) {
-        ModelDemo example = new ModelDemo();
+        // ModelDemo example = new ModelDemo();
+        BinarySearch example = new BinarySearch();
         example.startApp(primaryStage);
     }
 
