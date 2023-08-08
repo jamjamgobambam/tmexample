@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -27,9 +28,9 @@ public class RockPaperScissors {
     private Label predictionLabel;
 
     private Label promptLabel;
-    private int left = 0;
-    private int right = 100;
-    private int guess = (left + right) / 2;
+    private String userChoice;
+    private String computerChoice;
+    private String[] options;
 
     /** Button to exit the app */
     private Button exitButton;
@@ -50,7 +51,11 @@ public class RockPaperScissors {
         cameraView = new ImageView();
         predictionLabel = getPredictionLabel();
         exitButton = new Button("Exit");
-        promptLabel = new Label("Think of a number between 1 and 100:");
+
+        userChoice = null;
+        computerChoice = null;
+        options = new String[]{"rock", "paper", "scissors"};
+        promptLabel = new Label("Make your choice!");
     }
     
     /**
@@ -104,23 +109,47 @@ public class RockPaperScissors {
         updatePredictionLabel();
     }
 
-    public int binarySearch(String predictedClass) {
-        if (predictedClass.equals("0 thumbsup")) {
-            left = guess;
-            guess = (left + right) / 2;
-            return guess;
+    public void getComputerChoice() {
+        int randomIndex = (int)(Math.random() * 3);
+        computerChoice = options[randomIndex];
+    }
+
+    public String determineWinner() {
+        String result = "Computer choice: " + computerChoice + "\n";
+
+        if (userChoice.equals(computerChoice)) {
+            result += "Tie!";
         }
-        else if (predictedClass.equals("1 thumbsdown")) {
-            right = guess;
-            guess = (left + right) / 2;
-            return guess;
-        }
-        else if (predictedClass.equals("stop")) {
-            return guess;
+        else if (userChoice.equals("rock") && computerChoice.equals("scissors") ||
+            userChoice.equals("paper") && computerChoice.equals("rock") ||
+            userChoice.equals("scissors") && computerChoice.equals("paper")) {
+                result += "You win!";
         }
         else {
-            return -1;
+            result += "You lose :(";
         }
+
+        return result;
+    }
+
+    public void play() {
+        String result = determineWinner();
+
+        PauseTransition delay = new PauseTransition(Duration.seconds(5));
+        delay.setOnFinished(event -> {
+            Platform.runLater(() -> {
+                promptLabel.setText(result);
+                
+                PauseTransition delay2 = new PauseTransition(Duration.seconds(5));
+                delay2.setOnFinished(event2 -> {
+                    promptLabel.setText("Make your choice!");
+                });
+
+                delay2.play();
+            });
+        });
+
+        delay.play();
     }
 
     /**
@@ -153,17 +182,19 @@ public class RockPaperScissors {
      * Uses a timeline to update the label every second.
      */
     private void updatePredictionLabel() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
             // Get the predicted class and score from the CameraController
             String predictedClass = cameraController.getPredictedClass();
             double predictedScore = cameraController.getPredictedScore();
 
             // Update the prediction label with the guess, predicted class, and score
             if (predictedClass != null) {
-                // Get the guess from the binary search
-                int guess = binarySearch(predictedClass);
+                userChoice = predictedClass.substring(predictedClass.indexOf(" ") + 1);
 
-                Platform.runLater(() -> predictionLabel.setText("Guess: " + guess + " - " + predictedClass + " - " + predictedScore));
+                getComputerChoice();
+                play();
+
+                Platform.runLater(() -> predictionLabel.setText("User: " + userChoice + " (" + predictedScore + ")"));
             }
         }));
         

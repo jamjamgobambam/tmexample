@@ -11,7 +11,8 @@ public class App extends Application {
 
     public void start(Stage primaryStage) {
         // ModelDemo example = new ModelDemo();
-        BinarySearch example = new BinarySearch();
+        // BinarySearch example = new BinarySearch();
+        RockPaperScissors example = new RockPaperScissors();
         example.startApp(primaryStage);
     }
 
