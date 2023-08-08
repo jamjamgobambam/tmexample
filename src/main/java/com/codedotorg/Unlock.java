@@ -1,7 +1,6 @@
 package com.codedotorg;
 
 import javafx.animation.KeyFrame;
-import javafx.animation.PauseTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -12,7 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class RockPaperScissors {
+public class Unlock {
 
     /** The main window of the app */
     private Stage window;
@@ -24,9 +23,9 @@ public class RockPaperScissors {
     private Label predictionLabel;
 
     private Label promptLabel;
-    private String userChoice;
-    private String computerChoice;
-    private String[] options;
+    private int passcode;
+    private int count;
+    private String[] userPasscode;
 
     /** Button to exit the app */
     private Button exitButton;
@@ -41,17 +40,17 @@ public class RockPaperScissors {
      * Constructor for the ModelDemo class.
      * Initializes the camera controller, model manager, image view, prediction label, and exit button.
      */
-    public RockPaperScissors() {
+    public Unlock() {
         cameraController = new CameraController();
         model = new ModelManager();
         cameraView = new ImageView();
         predictionLabel = getPredictionLabel();
         exitButton = new Button("Exit");
 
-        userChoice = null;
-        computerChoice = null;
-        options = new String[]{"rock", "paper", "scissors"};
-        promptLabel = new Label("Make your choice!");
+        promptLabel = new Label("Think of a number between 1 and 100:");
+        passcode = 1234;
+        count = 0;
+        userPasscode = new String[4];
     }
     
     /**
@@ -105,47 +104,24 @@ public class RockPaperScissors {
         updatePredictionLabel();
     }
 
-    public void getComputerChoice() {
-        int randomIndex = (int)(Math.random() * 3);
-        computerChoice = options[randomIndex];
+    public boolean checkPasscode(String[] user) {
+        String result = convertUserToString(user);
+
+        if (result.equals(passcode)) {
+            return true;
+        }
+
+        return false;
     }
 
-    public String determineWinner() {
-        String result = "Computer choice: " + computerChoice + "\n";
+    public String convertUserToString(String[] user) {
+        String result = "";
 
-        if (userChoice.equals(computerChoice)) {
-            result += "Tie!";
-        }
-        else if (userChoice.equals("rock") && computerChoice.equals("scissors") ||
-            userChoice.equals("paper") && computerChoice.equals("rock") ||
-            userChoice.equals("scissors") && computerChoice.equals("paper")) {
-                result += "You win!";
-        }
-        else {
-            result += "You lose :(";
+        for (String selection : user) {
+            result += selection;
         }
 
         return result;
-    }
-
-    public void play() {
-        String result = determineWinner();
-
-        PauseTransition delay = new PauseTransition(Duration.seconds(5));
-        delay.setOnFinished(event -> {
-            Platform.runLater(() -> {
-                promptLabel.setText(result);
-                
-                PauseTransition delay2 = new PauseTransition(Duration.seconds(5));
-                delay2.setOnFinished(event2 -> {
-                    promptLabel.setText("Make your choice!");
-                });
-
-                delay2.play();
-            });
-        });
-
-        delay.play();
     }
 
     /**
@@ -178,19 +154,27 @@ public class RockPaperScissors {
      * Uses a timeline to update the label every second.
      */
     private void updatePredictionLabel() {
-        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(5), event -> {
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(3), event -> {
             // Get the predicted class and score from the CameraController
             String predictedClass = cameraController.getPredictedClass();
             double predictedScore = cameraController.getPredictedScore();
 
             // Update the prediction label with the guess, predicted class, and score
             if (predictedClass != null) {
-                userChoice = predictedClass.substring(predictedClass.indexOf(" ") + 1);
+                String userChoice = predictedClass.substring(predictedClass.indexOf(" ") + 1);
+                count++;
 
-                getComputerChoice();
-                play();
+                if (count != 4) {
+                    userPasscode[count] = userChoice;
+                }
+                else if (checkPasscode(userPasscode)) {
+                    promptLabel.setText("Access Granted!");
+                }
+                else {
+                    promptLabel.setText("Incorrect PIN");
+                }
 
-                Platform.runLater(() -> predictionLabel.setText("User: " + userChoice + " (" + predictedScore + ")"));
+                Platform.runLater(() -> predictionLabel.setText("User: " + predictedClass + " - " + predictedScore));
             }
         }));
         
